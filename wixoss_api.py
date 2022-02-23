@@ -21,13 +21,20 @@ while True:
     req = session.get(base_url + query % i)
     soup = BeautifulSoup(req.content, 'html.parser')
     cards = soup.find('div', class_='risultati')
+
+    # Reached end of pages
     if not cards:
         break
+
     for card in cards.find_all('a', class_='preview'):
         href = card['href']
         cardreq = session.get(base_url + href)
         cardsoup = BeautifulSoup(cardreq.content, 'html.parser')
+
+        # Get main data container
         container = cardsoup.find('main', id='main-content')
+
+        # Get image properties
         img_href = container.find('img')['src']
         cardid = img_href.split('/')[2]
         img_path = f'images/{cardid}.png'
