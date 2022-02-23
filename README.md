@@ -1,4 +1,4 @@
-# wixoss_api
+# API for the WIXOSS card game
 
 WIP WIXOSS api fetching data from https://www.wixosstcg.eu/
 
