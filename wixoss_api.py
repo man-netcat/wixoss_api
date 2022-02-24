@@ -1,10 +1,13 @@
 import shutil
-from os import path
 import sqlite3
+import warnings
+from os import path
 
 import pandas as pd
 from bs4 import BeautifulSoup
 from requests_cache import CachedSession
+
+warnings.filterwarnings("ignore")
 
 base_url = 'https://www.wixosstcg.eu'
 query = '/Carddb?nomecarta=&cerca=true&ordina=cardid&page=%s'
@@ -59,7 +62,7 @@ def main():
     # Write dict to json
     df = pd.DataFrame(database)
     conn = sqlite3.connect('database.db')
-    df.to_sql("cards", conn, if_exists='append', index=False)
+    df.to_sql("cards", conn, if_exists='replace', method='multi', index=False)
 
 
 if __name__ == '__main__':
