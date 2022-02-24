@@ -53,8 +53,9 @@ def make_json():
     session.close()
 
     # Write dict to json
-    with open('database.json', 'w', encoding='utf8') as f:
-        json.dump(database, f, ensure_ascii=False)
+    df = pd.DataFrame(database)
+    conn = sqlite3.connect('database.db')
+    df.to_sql("cards", conn, if_exists='append', index=False)
 
 
 def download_images():
@@ -91,18 +92,9 @@ def download_images():
     session.close()
 
 
-def make_db():
-    conn = sqlite3.connect('database.db')
-
-    with open('database.json', encoding='utf-8') as f:
-        df = pd.read_json(f)
-        df.to_sql("cards", conn, if_exists='append', index=False)
-
-
 def main():
     make_json()
     download_images()
-    make_db()
 
 
 if __name__ == '__main__':
