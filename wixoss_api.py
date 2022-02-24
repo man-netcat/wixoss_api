@@ -1,69 +1,65 @@
-import shutil
 import sqlite3
-import warnings
-from os import path
 
-import pandas as pd
-from bs4 import BeautifulSoup
-from requests_cache import CachedSession
+from flask import Flask, g, jsonify, request
 
-warnings.filterwarnings("ignore")
+app = Flask(__name__)
+app.config["DEBUG"] = True
 
-base_url = 'https://www.wixosstcg.eu'
-query = '/Carddb?nomecarta=&cerca=true&ordina=cardid&page=%s'
-session = CachedSession()
+valid_args = {
+    "id": "Card Id",
+    "level": "Level",
+    "limits": "Limits",
+    "type": "Card Type",
+    "class": "LRIG Type/Class",
+    "rarity": "Rarity",
+    "color": "Color",
+    "colour": "Color",
+}
 
-
-def main():
-    database = []
-
-    i = 1
-    while True:
-        req = session.get(base_url + query % i)
-        soup = BeautifulSoup(req.content, 'html.parser')
-        cards = soup.find('div', class_='risultati')
-
-        # Reached end of pages
-        if not cards:
-            break
-
-        for card in cards.find_all('a', class_='preview'):
-            href = card['href']
-            cardreq = session.get(base_url + href)
-            cardsoup = BeautifulSoup(cardreq.content, 'html.parser')
-
-            # Get main data container
-            container = cardsoup.find('main', id='main-content')
-
-            # Get card id
-            img_href = container.find('img')['src']
-            cardid = img_href.split('/')[2]
-            img_path = f'images/{cardid}.png'
-
-            # Download img
-            if not path.exists(img_path):
-                img_res = session.get(base_url + img_href, stream=True)
-                with open(img_path, 'wb') as out_file:
-                    shutil.copyfileobj(img_res.raw, out_file)
-
-            # Write cardinfo to db
-            cardinfo = container.find(
-                'div', class_='col-md-6 padding-top-30').find_all('div')
-            cardentry = {'Card Id': cardid}
-            for key, value in zip(cardinfo[0::2], cardinfo[1::2]):
-                stripped_key = key.get_text().strip()
-                stripped_value = value.get_text().strip()
-                cardentry[stripped_key] = stripped_value
-            database.append(cardentry)
-        i += 1
-
-    session.close()
-
-    # Write dict to json
-    df = pd.DataFrame(database)
-    conn = sqlite3.connect('database.db')
-    df.to_sql("cards", conn, if_exists='replace', method='multi', index=False)
+special = ['or']
 
 
-if __name__ == '__main__':
-    main()
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect('database.db')
+    return db
+
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
+
+@app.route('/')
+def index():
+    return """<h1>Search a card by id by using /cards</h1><p>Accepted arguments are: id, level, limits, type, class, rarity and color.</p><p>For disjunctive search, use &or</p>"""
+
+
+@app.route('/cards')
+def cards():
+    cur = get_db().cursor()
+    query = 'SELECT * FROM cards'
+    query_params = []
+    if request.args:
+        if 'or' in request.args:
+            conjunction = 'OR'
+        else:
+            conjunction = 'AND'
+        query_args = []
+        for arg in request.args:
+            if arg in special or arg not in valid_args:
+                continue
+            query_args.append(f"(`{valid_args[arg]}`=?)")
+            query_params.append(request.args[arg])
+        criterion = f' {conjunction} '.join(query_args)
+        query += " WHERE " + criterion
+    print(query)
+    cur.execute(query, query_params)
+    res = cur.fetchall()
+    return jsonify(res)
+
+
+app.run()
