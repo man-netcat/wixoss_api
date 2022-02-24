@@ -55,7 +55,6 @@ def cards():
             query_params.append(request.args[arg])
         criterion = f' {conjunction} '.join(query_args)
         query += " WHERE " + criterion
-    print(query)
     cur.execute(query, query_params)
     res = cur.fetchall()
     return jsonify(res)
