@@ -3,7 +3,6 @@ import sqlite3
 from flask import Flask, g, jsonify, request
 
 app = Flask(__name__)
-app.config["DEBUG"] = True
 
 valid_args = {
     "id": "Card Id",
