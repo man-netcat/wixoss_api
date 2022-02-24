@@ -16,6 +16,26 @@ base_url = 'https://www.wixosstcg.eu'
 query = '/Carddb?nomecarta=&cerca=true&ordina=cardid&page=%s'
 session = CachedSession()
 
+translation = {
+    'LRIG Type/Class': 'class',
+    'Team': 'team',
+    'Artist': 'artist',
+    'Card Type': 'type',
+    'Flavor Text': 'flavor_text',
+    'Level': 'level',
+    'Power Text': 'power_text',
+    'Rarity': 'rarity',
+    'Text Card': 'text',
+    'Color': 'color',
+    'Product': 'product',
+    'Grow Cost': 'grow_cost',
+    'Timing': 'timing',
+    'Power': 'power',
+    'Card Name': 'name',
+    'Limits': 'limits',
+    'Cost': 'cost'
+}
+
 
 def main():
     database = []
@@ -52,11 +72,12 @@ def main():
             # Write cardinfo to db
             cardinfo = container.find(
                 'div', class_='col-md-6 padding-top-30').find_all('div')
-            cardentry = {'Card Id': cardid}
+            cardentry = {'id': cardid}
             for key, value in zip(cardinfo[0::2], cardinfo[1::2]):
                 stripped_key = key.get_text().strip()
+                translated_key = translation[stripped_key]
                 stripped_value = value.get_text().strip()
-                cardentry[stripped_key] = stripped_value
+                cardentry[translated_key] = stripped_value
             database.append(cardentry)
         i += 1
 

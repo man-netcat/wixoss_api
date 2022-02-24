@@ -4,16 +4,28 @@ from flask import Flask, g, jsonify, request
 
 app = Flask(__name__)
 
-valid_args = {
-    "id": "Card Id",
-    "level": "Level",
-    "limits": "Limits",
-    "type": "Card Type",
-    "class": "LRIG Type/Class",
-    "rarity": "Rarity",
-    "color": "Color",
-    "colour": "Color",
-}
+app.debug = True
+
+valid_args = [
+    'class',
+    'team',
+    'artist',
+    'type',
+    'flavor_text',
+    'level',
+    'power_text',
+    'rarity',
+    'card_text',
+    'color',
+    'product',
+    'grow_cost',
+    'timing',
+    'power',
+    'name',
+    'limits',
+    'cost',
+    'id'
+]
 
 special = ['or']
 
@@ -35,7 +47,8 @@ def close_connection(exception):
 
 @app.route('/')
 def index():
-    return """<h1>Search a card by id by using /cards</h1><p>Accepted arguments are: id, level, limits, type, class, rarity and color.</p><p>For disjunctive search, use &or</p>"""
+    with open('home.html', 'r') as f:
+        return f.read()
 
 
 @app.route('/cards')
@@ -49,7 +62,7 @@ def cards():
         for arg in request.args:
             if arg in special or arg not in valid_args:
                 continue
-            query_args.append(f"(`{valid_args[arg]}`=?)")
+            query_args.append(f"(`{arg}`=?)")
             query_params.append(request.args[arg])
         criterion = f' {junction} '.join(query_args)
         query += " WHERE " + criterion
