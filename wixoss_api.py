@@ -43,17 +43,14 @@ def cards():
     query = 'SELECT * FROM cards'
     query_params = []
     if request.args:
-        if 'or' in request.args:
-            conjunction = 'OR'
-        else:
-            conjunction = 'AND'
+        junction = 'OR' if 'or' in request.args else 'AND'
         query_args = []
         for arg in request.args:
             if arg in special or arg not in valid_args:
                 continue
             query_args.append(f"(`{valid_args[arg]}`=?)")
             query_params.append(request.args[arg])
-        criterion = f' {conjunction} '.join(query_args)
+        criterion = f' {junction} '.join(query_args)
         query += " WHERE " + criterion
     cur.execute(query, query_params)
     res = cur.fetchall()
