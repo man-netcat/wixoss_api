@@ -1,18 +1,20 @@
+import csv
 import json
 import os
 import shutil
 from os import path
-import types
+import sqlite3
 
+import pandas as pd
 from bs4 import BeautifulSoup
 from requests_cache import CachedSession
 
+base_url = 'https://www.wixosstcg.eu'
+query = '/Carddb?nomecarta=&cerca=true&ordina=cardid&page=%s'
+session = CachedSession()
+
 
 def make_json():
-    session = CachedSession()
-    base_url = 'https://www.wixosstcg.eu'
-    query = '/Carddb?nomecarta=&cerca=true&ordina=cardid&page=%s'
-
     database = []
 
     i = 1
@@ -56,10 +58,6 @@ def make_json():
 
 
 def download_images():
-    session = CachedSession()
-    base_url = 'https://www.wixosstcg.eu'
-    query = '/Carddb?nomecarta=&cerca=true&ordina=cardid&page=%s'
-
     i = 1
     while True:
         req = session.get(base_url + query % i)
@@ -93,13 +91,18 @@ def download_images():
     session.close()
 
 
-def main():
-    if not path.exists('database.json'):
-        make_json()
+def make_db():
+    conn = sqlite3.connect('database.db')
 
-    if not path.exists('images'):
-        os.mkdir('images')
-        download_images()
+    with open('database.json', encoding='utf-8') as f:
+        df = pd.read_json(f)
+        df.to_sql("cards", conn, if_exists='append', index=False)
+
+
+def main():
+    make_json()
+    download_images()
+    make_db()
 
 
 if __name__ == '__main__':
