@@ -22,6 +22,7 @@ def get_db():
     db = getattr(g, '_database', None)
     if db is None:
         db = g._database = sqlite3.connect('database.db')
+        db.row_factory = sqlite3.Row
     return db
 
 
@@ -54,7 +55,8 @@ def cards():
         query += " WHERE " + criterion
     cur.execute(query, query_params)
     res = cur.fetchall()
-    return jsonify(res)
+    unpacked = [{k: row[k] for k in row.keys()} for row in res]
+    return jsonify(unpacked)
 
 
 app.run()
