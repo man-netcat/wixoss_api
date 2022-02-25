@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
 import sqlite3
 
 from flask import Flask, g, jsonify, request, render_template
