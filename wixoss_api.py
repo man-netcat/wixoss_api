@@ -1,6 +1,6 @@
 import sqlite3
 
-from flask import Flask, g, jsonify, request
+from flask import Flask, g, jsonify, request, render_template
 
 app = Flask(__name__)
 
@@ -47,8 +47,7 @@ def close_connection(exception):
 
 @app.route('/')
 def index():
-    with open('home.html', 'r') as f:
-        return f.read()
+    return render_template('index.html')
 
 
 @app.route('/cards')
