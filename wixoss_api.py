@@ -4,11 +4,10 @@
 import os
 import sqlite3
 
-from numpy import divide
-from misc.tools import sort_nicely, divide_chunks
-
 from flask import (Flask, g, jsonify, render_template, request,
                    send_from_directory)
+
+from misc.tools import divide_chunks, sort_nicely
 
 app = Flask(__name__)
 
@@ -68,9 +67,9 @@ def image(filename):
 
 @app.route('/img')
 def imgdir():
-    imglist = os.listdir('./images')
+    imglist = os.listdir('./images/')
     sort_nicely(imglist)
-    divided = list(divide_chunks(imglist, 5))
+    divided = divide_chunks(imglist, 5)
     return render_template('imgdir.html', list=divided)
 
 
@@ -96,4 +95,4 @@ def cards():
 
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=8888, debug=True)
+    app.run(host='localhost', port=80, debug=True)
