@@ -1,11 +1,23 @@
 <!DOCTYPE html>
+<style>
+  img {
+    width: 60%;
+    height: auto;
+  }
+</style>
+
 <html>
   <title>Card Images</title>
   <h1>Card Images</h1>
   <a href="/">Home</a>
-  <ul>
-    {%- for item in list %}
-    <li><a href="/img/{{ item }}">{{ item }}</a></li>
-    {%- endfor %}
-  </ul>
+
+  <table>
+    {% for sublist in list%}
+    <tr>
+      {% for item in sublist%}
+      <td><a href="/img/{{ item }}"><img src="/img/{{ item }}" alt="{{item}}" /></a></td>
+      {% endfor%}
+    </tr>
+    {% endfor %}
+  </table>
 </html>
