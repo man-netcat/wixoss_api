@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import os
 import sqlite3
 
 from flask import (Flask, g, jsonify, render_template, request,
                    send_from_directory)
 
 app = Flask(__name__)
-
-app.debug = True
 
 valid_args = [
     'class',
@@ -61,7 +60,12 @@ def index():
 
 @app.route('/img/<path:filename>')
 def image(filename):
-    return send_from_directory('./images/', f'{filename}.png'), 200
+    return send_from_directory('./images/', f'{filename}'), 200
+
+
+@app.route('/img')
+def imgdir():
+    return render_template('imgdir.html', list=os.listdir('./images'))
 
 
 @app.route('/cards')
@@ -85,4 +89,5 @@ def cards():
     return jsonify(unpacked)
 
 
-app.run()
+if __name__ == '__main__':
+    app.run(host='localhost', port=8888, debug=True)
