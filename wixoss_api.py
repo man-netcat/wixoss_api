@@ -3,7 +3,7 @@
 
 import sqlite3
 
-from flask import Flask, g, jsonify, request, render_template
+from flask import Flask, g, jsonify, render_template, request, send_file, send_from_directory
 
 app = Flask(__name__)
 
@@ -51,6 +51,11 @@ def close_connection(exception):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route('/img/<path:filename>')
+def image(filename):
+    return send_from_directory('.', f'./images/{filename}.png')
 
 
 @app.route('/cards')
