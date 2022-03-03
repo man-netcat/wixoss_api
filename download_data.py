@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from fnmatch import translate
 import shutil
 import sqlite3
 import warnings
@@ -35,6 +36,26 @@ translation = {
     'Limits': 'limits',
     'Cost': 'cost'
 }
+
+
+def clean_string(string: str):
+    translation = [
+        ('\xa0', ' '),
+        ('＋', '+'),
+        ('×', 'x'),
+        ('０', '0'),
+        ('１', '1'),
+        ('２', '2'),
+        ('３', '3'),
+        ('４', '4'),
+        ('５', '5'),
+        ('７', '7'),
+        ('《G》', ''),
+    ]
+    for src, dst in translation:
+        string = string.replace(src, dst)
+
+    return string
 
 
 def main():
@@ -76,8 +97,8 @@ def main():
             for key, value in zip(cardinfo[0::2], cardinfo[1::2]):
                 stripped_key = key.get_text().strip()
                 translated_key = translation[stripped_key]
-                stripped_value = value.get_text().strip()
-                cardentry[translated_key] = stripped_value
+                clean_value = clean_string(value.get_text().strip())
+                cardentry[translated_key] = clean_value
             database.append(cardentry)
         i += 1
 
