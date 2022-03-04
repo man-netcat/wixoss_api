@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from fnmatch import translate
 import shutil
 import sqlite3
 import warnings
