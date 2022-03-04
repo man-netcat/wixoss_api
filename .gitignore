@@ -1,4 +1,4 @@
-images
+static/cardimages
 database.db
 database.json
 http_cache.sqlite

@@ -62,12 +62,12 @@ def index():
 
 @app.route('/img/<path:filename>')
 def image(filename):
-    return send_from_directory('./images/', f'{filename}'), 200
+    return send_from_directory('./static/cardimages/', f'{filename}'), 200
 
 
 @app.route('/img')
 def imgdir():
-    imglist = os.listdir('./images/')
+    imglist = os.listdir('./static/cardimages/')
     sort_nicely(imglist)
     divided = divide_chunks(imglist, 5)
     return render_template('imgdir.html', list=divided)

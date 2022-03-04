@@ -15,7 +15,7 @@
     {% for sublist in list%}
     <tr>
       {% for item in sublist%}
-      <td><a href="/img/{{ item }}"><img src="/img/{{ item }}" alt="{{item}}" /></a></td>
+      <td><a href="/img/{{ item }}"><img src="{{url_for('image', filename=item)}}" alt="{{item}}" /></a></td>
       {% endfor%}
     </tr>
     {% endfor %}
