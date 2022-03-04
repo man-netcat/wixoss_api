@@ -1,8 +1,23 @@
 <!DOCTYPE html>
 <html>
-  <title>404</title>
+  <head>
+    <title>404</title>
+    <style>
+      .notfound {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 40%;
+      }
+    </style>
+  </head>
   <body>
-    <img src="/static/img/404.jpg" alt="404" />
-    <p><a href="{{ url_for('index') }}">Home</a></p>
+    <div class="notfound">
+      <img
+        src="https://www.traffic-builders.com/wp-content/uploads/2021/03/AdWords-scripts-link-checker-740x350.jpg"
+        alt="404"
+      />
+      <p><a href="{{ url_for('index') }}">Home</a></p>
+    </div>
   </body>
 </html>

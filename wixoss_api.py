@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import logging
 import os
 import sqlite3
 
 from flask import (Flask, g, jsonify, render_template, request,
                    send_from_directory)
+from waitress import serve
 
 from misc.tools import divide_chunks, sort_nicely
 
 app = Flask(__name__)
+
 
 valid_args = [
     'class',
@@ -69,7 +72,7 @@ def image(filename):
 def imgdir():
     imglist = os.listdir('./static/cardimages/')
     sort_nicely(imglist)
-    divided = divide_chunks(imglist, 5)
+    divided = divide_chunks(imglist, 4)
     return render_template('imgdir.html', list=divided)
 
 
@@ -84,7 +87,7 @@ def cards():
         for arg in request.args:
             if arg in special or arg not in valid_args:
                 continue
-            query_args.append(f"(`{arg}`=?)")
+            query_args.append(f"(`{arg}` LIKE '%'||?||'%')")
             query_params.append(request.args[arg])
         criterion = f' {junction} '.join(query_args)
         query += " WHERE " + criterion
@@ -95,4 +98,15 @@ def cards():
 
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=80, debug=True)
+    if False:
+        serve(
+            app,
+            host="0.0.0.0",
+            port=80,
+            url_scheme='https',
+            threads=8,
+        )
+        logger = logging.getLogger('waitress')
+        logger.setLevel(logging.INFO)
+    else:
+        app.run(host="localhost", port=80, debug=True)
