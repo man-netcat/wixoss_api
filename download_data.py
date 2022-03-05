@@ -81,7 +81,7 @@ def main():
             # Get card id
             img_href = container.find('img')['src']
             cardid = img_href.split('/')[2]
-            img_path = f'images/{cardid}.png'
+            img_path = f'static/cardimages/{cardid}.png'
 
             # Download img
             if not path.exists(img_path):
