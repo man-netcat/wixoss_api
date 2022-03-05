@@ -5,8 +5,8 @@ import logging
 import os
 import sqlite3
 
-from flask import (Flask, g, jsonify, render_template, request,
-                   send_from_directory)
+from flask import (Flask, flash, g, jsonify, redirect, render_template,
+                   request, send_from_directory, url_for)
 from waitress import serve
 
 from misc.tools import divide_chunks, sort_nicely
@@ -46,6 +46,16 @@ def get_db():
     return db
 
 
+def exec_query(query, params):
+    if type(params) != list:
+        params = [params]
+    cur = get_db().cursor()
+    cur.execute(query, params)
+    res = cur.fetchall()
+    unpacked = [{k: row[k] for k in row.keys()} for row in res]
+    return unpacked
+
+
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
@@ -69,32 +79,40 @@ def image(filename):
 
 
 @app.route('/img')
-def imgdir():
+def gallery():
     imglist = os.listdir('./static/cardimages/')
     sort_nicely(imglist)
     divided = divide_chunks(imglist, 4)
-    return render_template('imgdir.html', list=divided)
+    return render_template('gallery.html', list=divided)
+
+
+@app.route('/search', methods=('GET', 'POST'))
+def search():
+    res = []
+    if request.method == 'POST':
+        name = request.form['name']
+        if name:
+            query = "SELECT * FROM cards WHERE name LIKE '%'||?||'%'"
+            res = exec_query(query, name)
+    return render_template('form.html', results=res)
 
 
 @app.route('/cards')
 def cards():
-    cur = get_db().cursor()
     query = 'SELECT * FROM cards'
-    query_params = []
+    params = []
     if request.args:
         junction = 'OR' if 'or' in request.args else 'AND'
-        query_args = []
+        args = []
         for arg in request.args:
             if arg in special or arg not in valid_args:
                 continue
-            query_args.append(f"(`{arg}` LIKE '%'||?||'%')")
-            query_params.append(request.args[arg])
-        criterion = f' {junction} '.join(query_args)
+            args.append(f"(`{arg}` LIKE '%'||?||'%')")
+            params.append(request.args[arg])
+        criterion = f' {junction} '.join(args)
         query += " WHERE " + criterion
-    cur.execute(query, query_params)
-    res = cur.fetchall()
-    unpacked = [{k: row[k] for k in row.keys()} for row in res]
-    return jsonify(unpacked)
+    res = exec_query(query, params)
+    return jsonify(res)
 
 
 if __name__ == '__main__':
@@ -109,4 +127,5 @@ if __name__ == '__main__':
         logger = logging.getLogger('waitress')
         logger.setLevel(logging.INFO)
     else:
+        app.secret_key = "super secret key"
         app.run(host="localhost", port=80, debug=True)

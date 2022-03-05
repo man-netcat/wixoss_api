@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<style>
+  img {
+    width: 60%;
+    height: auto;
+  }
+</style>
+
+<html>
+  <title>Card Images</title>
+  <h1>Card Images</h1>
+  <a href="{{ url_for('index') }}">Home</a>
+
+  <form method="post">
+    <label for="name">Name</label>
+    <br />
+    <input
+      type="text"
+      name="name"
+      placeholder="Card Name"
+      value="{{ request.form['name'] }}"
+    />
+    <br />
+    <button type="submit">Search</button>
+  </form>
+  <table>
+    {% for card in results %}
+    <tr>
+      <td>
+        <a href="{{ url_for('image', filename=card['id']+".png") }}">
+          <img
+            src="{{ url_for('image', filename=card['id']+".png") }}"
+            alt="{{ card['name'] }}"
+          />
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</html>
