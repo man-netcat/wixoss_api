@@ -116,7 +116,7 @@ def cards():
 
 
 if __name__ == '__main__':
-    if False:
+    if True:
         serve(
             app,
             host="0.0.0.0",
